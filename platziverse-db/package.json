@@ -4,6 +4,7 @@
   "description": "A simple IoT Platform - DB Module",
   "main": "index.js",
   "scripts": {
+    "setup": "DEBUG=platziverse:* node setup.js",
     "lint": "standard"
   },
   "repository": {
@@ -13,9 +14,13 @@
   "author": "contrerasJF",
   "license": "MIT",
   "devDependencies": {
+    "ava": "^0.23.0",
     "standard": "^10.0.3"
   },
   "dependencies": {
+    "chalk": "^2.3.0",
+    "debug": "^3.1.0",
+    "inquirer": "^4.0.0",
     "mysql2": "^1.5.1",
     "sequelize": "^4.22.11"
   }
