@@ -3,7 +3,9 @@
 const setupDatabase = require('./lib/db')
 const setupAgentModel = require('./models/agent')
 const setupMetricModel = require('./models/metric')
+const setupAgent = require('./lib/agent')
 const defaults = require('defaults')
+
 module.exports = async function (config) {
   config = defaults(config, {
     dialect: 'sqlite',
@@ -30,7 +32,7 @@ module.exports = async function (config) {
     await sequelize.sync({ force: true })
   }
 
-  const Agent = {}
+  const Agent = setupAgent(AgentModel)
   const Metric = {}
 
   return {
