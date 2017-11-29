@@ -1,0 +1,17 @@
+{
+  "name": "platziverse-agent",
+  "version": "1.0.0",
+  "description": "A simple IoT Platform - Agent",
+  "main": "index.js",
+  "scripts": {
+    "lint": "standard"
+  },
+  "author": "contrerasJF",
+  "license": "MIT",
+  "devDependencies": {
+    "standard": "^10.0.3"
+  },
+  "dependencies": {
+    "uuid": "^3.1.0"
+  }
+}
