@@ -1,5 +1,5 @@
-
-function configDb (configExtra) {
+//const debug = require('debug')('platziverse:api:db')
+function configDb (debug, configExtra) {
 
   const config = {
     database: process.env.DB_NAME || 'platziverse',
