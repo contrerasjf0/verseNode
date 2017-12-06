@@ -1,4 +1,7 @@
 //const debug = require('debug')('platziverse:api:db')
+const auth =  {
+  secret: process.env.SECRET || 'platzi'
+}
 function configDb (debug, configExtra) {
 
   const config = {
@@ -24,5 +27,6 @@ function configDb (debug, configExtra) {
 
 
 module.exports = {
-  configDb
+  configDb,
+  auth
 }

@@ -1,3 +1,5 @@
+import { type } from 'os';
+
 'use strict'
 
 const test = require('ava')
@@ -8,6 +10,7 @@ const proxyquire = require('proxyquire')
 
 const config = require('../../config/configs')
 const agentFixtures = require('./fixtures/agent')
+const metricFixtures = require('./fixtures/metric')
 const auth = require('../auth')
 const sign = util.promisify(auth.sign)
 
@@ -19,6 +22,9 @@ let AgentStub = {}
 let MetricStub = {}
 
 let uuid = 'yyy-yyy-yyx'
+let uuidNotExist = '43234'
+let typeMetric = 'CPU'
+let typeMetricNotExit = 'RAM'
 
 test.beforeEach(async () => {
   sandbox = sinon.sandbox.create()
@@ -35,7 +41,13 @@ test.beforeEach(async () => {
   AgentStub.findByUuid = sandbox.stub()
   AgentStub.findByUuid.withArgs(uuid).returns(Promise.resolve(agentFixtures.byUuid(uuid)))
 
-  token =  await sign({admin:true, username: 'platzi'}, config.auth.secret)
+  MetricStub.findByAgentUuid = sandbox.stub()
+  MetricStub.findByAgentUuid.withArgs(uuid).returns(Promise.resolve(metricFixtures.byAgentUuid(uuid)))
+
+  MetricStub.findByTypeAgentUuid  = sandbox.stub()
+  MetricStub.findByTypeAgentUuid.withArgs(typeMetric, uuid).returns(Promise.resolve(metricFixtures.byTypeAgentUuid(typeMetric, uuid)))
+
+  token =  await sign({admin:true, username: 'platzi', permissions: ['metrics:read']}, config.auth.secret)
   
   const api = proxyquire('../api', {
     'platziverse-db': dbStub
@@ -65,6 +77,19 @@ test.serial.cb('/api/agents', t => {
     })
 })
 
+test.serial.cb('/api/agents -not autorization', t => {
+  request(server)
+    .get('/api/agents')
+    .expect(500)
+    .expect('Content-Type', /json/)
+    .end((err, res) => {
+      t.falsy(err, 'should not return an error')
+      let body = JSON.stringify(res.body)
+      t.deepEqual(body, '{"error":"No authorization token was found"}', 'response body should be the expected')
+      t.end()
+    })
+})
+
 test.serial.cb('/api/agent/:uuid', t => {
     request(server)
         .get(`/api/agent/${uuid}`)
@@ -80,7 +105,7 @@ test.serial.cb('/api/agent/:uuid', t => {
 })
 
 test.serial.cb('/api/agent/:uuid - not found',t => {
-  let uuidNotExist = '43234'
+  
 
   request(server)
     .get(`/api/agent/${uuidNotExist}`)
@@ -93,11 +118,74 @@ test.serial.cb('/api/agent/:uuid - not found',t => {
       t.end()
     })
 })
+
+test.serial.cb('/api/metrics/:uuid', t => {
+  request(server)
+    .get(`/api/metrics/${uuid}`)
+    .set('Authorization', `Bearer ${token}`)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .end((err, res) => {
+      t.falsy(err, 'Shoul not return error')
+      let body = JSON.stringify(res.body)
+      let expected = JSON.stringify(metricFixtures.byAgentUuid(uuid))
+      t.deepEqual(body, expected, 'response body should be the expected')
+      t.end()
+    })
+
+})
+
+test.serial.cb('/api/metrics/:uuid - not found', t => {
+  request(server)
+    .get(`/api/metrics/${uuidNotExist}`)
+    .set('Authorization', `Bearer ${token}`)
+    .expect(404)
+    .expect('Content-Type', /json/)
+    .end((err, res) => {
+      t.falsy(err, 'Shoul not return error')
+      let body = JSON.stringify(res.body)
+      t.deepEqual(body, `{"error":"Metrics not found for agent with uuid ${uuidNotExist}"}`, 'Should be return the value expected')
+      t.end()
+    })
+})
+
+
+test.serial.cb('/api/metrics/:uuid/:type', t => {
+  request(server)
+    .get(`/api/metrics/${uuid}/${typeMetric}`)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .end((err, res) => {
+      t.falsy(err, 'Shoul not return error')
+      let body = JSON.stringify(res.body)
+      let expected = JSON.stringify(metricFixtures.byTypeAgentUuid(typeMetric, uuid))
+      console.log(body);
+      t.deepEqual(body, expected, 'response body should be the expected')
+      t.end()
+    })
+
+})
+
+test.serial.cb('/api/metrics/:uuid/:type - not found', t => {
+  request(server)
+    .get(`/api/metrics/${uuid}/${typeMetricNotExit}`)
+    .expect(404)
+    .expect('Content-Type', /json/)
+    .end((err, res) => {
+      t.falsy(err, 'Shoul not return error')
+      let body = JSON.stringify(res.body)
+      t.deepEqual(body, `{"error":"Metrics (${typeMetricNotExit}) not found for agent with uuid ${uuid}"}`, 'Should be return the value expected')
+      t.end()
+    })
+})
+
+//todos
+
 //test.serial.todo('/api/agent/:uuid')
 //test.serial.todo('/api/agent/:uuid - not found')
 
-test.serial.todo('/api/metrics/:uuid')
-test.serial.todo('/api/metrics/:uuid - not found')
+//test.serial.todo('/api/metrics/:uuid')
+//test.serial.todo('/api/metrics/:uuid - not found')
 
-test.serial.todo('/api/metrics/:uuid/:type')
-test.serial.todo('/api/metrics/:uuid/:type - not found')
+//test.serial.todo('/api/metrics/:uuid/:type')
+//test.serial.todo('/api/metrics/:uuid/:type - not found')
