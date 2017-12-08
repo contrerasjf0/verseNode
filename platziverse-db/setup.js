@@ -1,8 +1,10 @@
 const debug = require('debug')('platziverse:db:setup')
 const inquirer = require('inquirer')
+const minimist = require('minimist')
 const chalk = require('chalk')
 const db = require('./')
 
+const args = minimist(process.argv)
 const prompt = inquirer.createPromptModule()
 async function setup () {
   

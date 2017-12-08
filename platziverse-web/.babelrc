@@ -1,0 +1,19 @@
+{
+    "presets": ["es2015", "stage-3"],
+    "plugins": ["transform-runtime"]
+}
+/*{
+    
+    "browserify": {
+        "transform": [
+          [
+            "babelify",
+            {
+              "presets": [
+                "es2015"
+              ]
+            }
+          ]
+        ]
+      },
+}*/
