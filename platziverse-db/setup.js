@@ -8,7 +8,7 @@ const args = minimist(process.argv)
 const prompt = inquirer.createPromptModule()
 async function setup () {
   
-   if(process.argv.pop() !== '-y'){
+   if(!args.yes){
     const answer = await prompt([
       {
         type: 'confirm',

@@ -14,22 +14,9 @@
   },
   "author": "contrerasJF",
   "license": "MIT",
-  "browserify": {
-    "transform": [
-      [
-        "babelify",
-        {
-          "presets": [
-            "es2015"
-          ]
-        }
-      ]
-    ]
-  },
   "devDependencies": {
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
-    "babel-preset-stage-3": "^6.24.1",
     "babelify": "^7.3.0",
     "browserify": "^14.4.0",
     "envify": "^4.1.0",
